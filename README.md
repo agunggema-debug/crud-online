@@ -35,7 +35,8 @@ Aplikasi ini adalah contoh solusi *full-stack* yang efisien dalam satu file tung
 | **Kecerdasan Buatan** | `Gemini API (gemini-2.5-flash-preview-09-2025)` | Pemrosesan bahasa alami dan Text-to-Speech. |
 | **Visualisasi** | `Chart.js` | Menghasilkan Donut Chart status tugas. |
 
-## 🖼️ Tampilan Aplikasi
+
+
 
 
 
