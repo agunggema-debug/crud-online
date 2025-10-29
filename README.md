@@ -41,6 +41,7 @@ Aplikasi ini adalah contoh solusi *full-stack* yang efisien dalam satu file tung
 
 ```html
 <p align="center">
-  <img src="[URL_ANDA](https://agunggema-debug.github.io/crud-online/screenshot-dashboard.png" alt="Screenshot Tampilan Dashboard Tugas Cerdas" width="800"/>
+  <img src="(https://agunggema-debug.github.io/crud-online/screenshot-dashboard.png" alt="Screenshot Tampilan Dashboard Tugas Cerdas" width="800"/>
 </p>
+
 
