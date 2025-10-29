@@ -35,7 +35,51 @@ Aplikasi ini adalah contoh solusi *full-stack* yang efisien dalam satu file tung
 | **Kecerdasan Buatan** | `Gemini API (gemini-2.5-flash-preview-09-2025)` | Pemrosesan bahasa alami dan Text-to-Speech. |
 | **Visualisasi** | `Chart.js` | Menghasilkan Donut Chart status tugas. |
 
+## ⚙️ Cara Menjalankan Secara Lokal
 
+Karena ini adalah **Single Page Application (SPA)** dalam satu file (`index.html`), langkah menjalankannya sangat mudah dan cepat.
+
+### 1. Prasyarat
+
+Anda memerlukan kunci dan kredensial layanan *cloud* berikut agar aplikasi dapat berfungsi penuh:
+
+* **Kunci Gemini API** (`YOUR_GEMINI_API_KEY`)
+* **Kredensial Firebase** (apiKey, projectId, dsb.)
+
+### 2. Dapatkan Kode
+
+Salin seluruh konten dari file `index.html` dan simpan sebagai file lokal bernama **`index.html`** di komputer Anda.
+
+### 3. Konfigurasi Kunci
+
+Buka file `index.html` lokal Anda dan temukan bagian `<script>` untuk konfigurasi. Ganti *placeholder* dengan kunci Anda yang sebenarnya.
+
+```javascript
+// Contoh bagian konfigurasi yang perlu diganti
+
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  // ... lainnya
+};
+
+const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+4. Buka di Browser
+Simpan perubahan pada file index.html dan buka langsung menggunakan browser modern apa pun (seperti Chrome, Firefox, atau Edge).
+
+🚀 Data akan secara otomatis dimuat dan disimpan di Firebase Firestore Anda secara real-time.
+
+🤝 Kontribusi
+Kami menyambut kontribusi dan saran dari komunitas! Aplikasi ini dapat dikembangkan lebih lanjut dengan fitur-fitur berikut:
+
+Peningkatan Saran: Gunakan fitur Google Search Grounding pada Gemini untuk memberikan saran berdasarkan konteks yang lebih luas (misalnya, jika tugas adalah "Beli bahan makanan", disarankan resep populer).
+
+Prioritas Tugas: Tambahkan fitur prioritas tugas (Tinggi, Sedang, Rendah) dan implementasikan styling visual yang berbeda.
+
+Autentikasi: Implementasi login non-anonim (misalnya, Login Google) menggunakan Firebase Auth untuk keamanan data yang lebih baik dan portabilitas data antar perangkat.
+
+Dibangun dengan 💙 oleh Gemini.
 
 
 
