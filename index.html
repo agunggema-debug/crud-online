@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Tugas Pintar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      html {
+        overflow-y: scroll;
+      }
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #3b82f6;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* Style untuk Modal Konfirmasi */
+      .confirm-modal {
+        transition: opacity 0.3s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto max-w-lg p-4 sm:p-8">
+      <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-gray-100">
+        <header class="mb-6 border-b border-gray-200 pb-4">
+          <h1 class="text-3xl font-extrabold text-blue-600">Daftar Tugas Cerdas 🧠</h1>
+          <p class="text-gray-600 mt-1">Kelola tugas Anda dan dapatkan bantuan AI untuk memecahkannya.</p>
+          <p id="user-id-display" class="text-xs text-gray-400 mt-2 break-all">ID Pengguna: Menunggu...</p>
+        </header>
+
+        <!-- C: Formulir Tambah Tugas (Create) -->
+        <form id="form-tambah" class="flex flex-col sm:flex-row sm:space-x-2 mb-6">
+          <input type="text" id="input-tugas" placeholder="Apa tugas baru Anda?" required class="flex-grow p-3 border border-gray-300 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0" />
+          <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+            Tambah
+          </button>
+        </form>
+
+        <!-- R: Daftar Tugas (Read) -->
+        <div>
+          <h2 class="text-xl font-semibold mb-3 text-gray-800 border-b pb-1">Tugas Saya</h2>
+          <div id="loading-text" class="text-gray-500 text-center py-4">Memuat tugas...</div>
+          <div id="daftar-tugas" class="space-y-3"></div>
+          <div id="status-card" class="mt-6 p-4 bg-gray-100 rounded-xl border border-gray-200">
+            <h3 class="font-bold text-lg mb-2 text-gray-700">Ringkasan Tugas</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="chart-container w-full h-36 max-h-36 mx-auto">
+                <canvas id="statusChart"></canvas>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Total Tugas: <span id="total-tasks" class="font-bold text-gray-900">0</span></p>
+                <p class="text-sm text-gray-600 mb-1">Selesai: <span id="completed-tasks" class="font-bold text-green-600">0</span></p>
+                <p class="text-sm text-gray-600">Belum Selesai: <span id="pending-tasks" class="font-bold text-red-600">0</span></p>
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-gray-500">Visualisasi ini membantu Anda memahami status beban kerja saat ini.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- U: Modal Edit Tugas (Update) -->
+    <div id="modal-edit" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-5 text-gray-800">Edit Tugas</h2>
+        <form id="form-edit">
+          <input type="hidden" id="input-edit-id" />
+          <input type="text" id="input-edit-teks" required class="w-full p-3 border border-gray-300 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" id="btn-batal-edit" class="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300 transition duration-200">Batal</button>
+            <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition duration-200">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div id="modal-confirm" class="confirm-modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0">
+      <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-sm transform transition-all duration-300 scale-95">
+        <h3 class="text-xl font-bold mb-4 text-red-600">Konfirmasi Hapus</h3>
+        <p class="text-gray-700 mb-6">Apakah Anda yakin ingin menghapus tugas ini secara permanen?</p>
+        <div class="flex justify-end space-x-3">
+          <button id="btn-confirm-cancel" class="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300 transition duration-200">Batal</button>
+          <button id="btn-confirm-delete" class="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold shadow-md hover:bg-red-700 transition duration-200">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Ide/Saran (Gemini) -->
+    <div id="modal-ide" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-lg">
+        <h2 class="text-2xl font-bold mb-4 text-purple-600">✨ Ide & Saran Gemini</h2>
+        <p id="ide-tugas-teks" class="text-gray-600 mb-4 italic"></p>
+        <div id="ide-loading" class="hidden flex items-center space-x-3 mb-4 p-4 bg-yellow-100 rounded-lg">
+          <div class="spinner border-yellow-500 border-l-yellow-700"></div>
+          <p class="text-yellow-700">Gemini sedang menganalisis tugas...</p>
+        </div>
+        <div id="ide-konten" class="prose max-w-none text-gray-800 border p-4 rounded-xl bg-gray-50 max-h-96 overflow-y-auto"></div>
+        <div class="flex justify-end mt-6">
+          <button type="button" id="btn-tutup-ide" class="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300 transition duration-200">Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memuat Firebase SDK dan Logika Aplikasi -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import { getFirestore, doc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // Konfigurasi API Gemini
+      const GEMINI_API_KEY = "";
+      const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + GEMINI_API_KEY;
+      const GEMINI_TTS_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + GEMINI_API_KEY;
+
+      // Menggunakan Variabel Global dari Canvas
+      const firebaseConfigStr = typeof __firebase_config !== "undefined" ? __firebase_config : "{}";
+      const appId = typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+      const initialAuthToken = typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
+
+      let firebaseConfig;
+      try {
+        firebaseConfig = JSON.parse(firebaseConfigStr);
+      } catch (e) {
+        console.error("Konfigurasi Firebase tidak valid:", e);
+        firebaseConfig = {};
+      }
+
+      // Inisialisasi Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      setLogLevel("Debug");
+
+      let userId;
+      let tasksCollectionRef;
+      let audioContext;
+      let statusChartInstance;
+      let taskToDeleteId = null;
+
+      // Referensi Elemen DOM
+      const formTambah = document.getElementById("form-tambah");
+      const inputTugas = document.getElementById("input-tugas");
+      const daftarTugas = document.getElementById("daftar-tugas");
+      const loadingText = document.getElementById("loading-text");
+      const userIdDisplay = document.getElementById("user-id-display");
+
+      const modalEdit = document.getElementById("modal-edit");
+      const formEdit = document.getElementById("form-edit");
+      const inputEditId = document.getElementById("input-edit-id");
+      const inputEditTeks = document.getElementById("input-edit-teks");
+      const btnBatalEdit = document.getElementById("btn-batal-edit");
+
+      const modalConfirm = document.getElementById("modal-confirm");
+      const btnConfirmCancel = document.getElementById("btn-confirm-cancel");
+      const btnConfirmDelete = document.getElementById("btn-confirm-delete");
+
+      const modalIde = document.getElementById("modal-ide");
+      const ideLoading = document.getElementById("ide-loading");
+      const ideKonten = document.getElementById("ide-konten");
+      const ideTugasTeks = document.getElementById("ide-tugas-teks");
+      const btnTutupIde = document.getElementById("btn-tutup-ide");
+
+      const totalTasksEl = document.getElementById("total-tasks");
+      const completedTasksEl = document.getElementById("completed-tasks");
+      const pendingTasksEl = document.getElementById("pending-tasks");
+
+      // --- Utilitas General ---
+
+      async function exponentialBackoffFetch(url, options) {
+        const maxRetries = 3;
+        let delay = 1000;
+        for (let i = 0; i < maxRetries; i++) {
+          try {
+            const response = await fetch(url, options);
+            if (response.ok) return response;
+
+            if (i === maxRetries - 1) {
+              throw new Error(`Permintaan API gagal dengan status: ${response.status}`);
+            }
+          } catch (error) {
+            if (i === maxRetries - 1) throw error;
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          delay *= 2;
+        }
+      }
+
+      function base64ToArrayBuffer(base64) {
+        const binaryString = atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+      }
+
+      function pcmToWav(pcm16, sampleRate) {
+        const numChannels = 1;
+        const bytesPerSample = 2;
+        const buffer = new ArrayBuffer(44 + pcm16.length * bytesPerSample);
+        const view = new DataView(buffer);
+        view.setUint32(0, 0x52494646, false);
+        view.setUint32(4, 36 + pcm16.length * bytesPerSample, true);
+        view.setUint32(8, 0x57415645, false);
+        view.setUint32(12, 0x666d7420, false);
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * numChannels * bytesPerSample, true);
+        view.setUint16(32, numChannels * bytesPerSample, true);
+        view.setUint16(34, 16, true);
+        view.setUint32(36, 0x64617461, false);
+        view.setUint32(40, pcm16.length * bytesPerSample, true);
+        let offset = 44;
+        for (let i = 0; i < pcm16.length; i++) {
+          view.setInt16(offset, pcm16[i], true);
+          offset += 2;
+        }
+        return new Blob([view], { type: "audio/wav" });
+      }
+
+      function convertMarkdownToHtml(markdown) {
+        let html = markdown;
+        html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        html = html.replace(/^- (.*)/gm, "<li>$1</li>");
+        if (html.includes("<li>")) {
+          html = "<ul>" + html + "</ul>";
+          html = html.replace(/<\/ul><ul>/g, "");
+        }
+        html = html
+          .split("\n\n")
+          .map((p) => {
+            if (p.trim() && !p.startsWith("<") && !p.startsWith("<ul>")) {
+              return `<p>${p}</p>`;
+            }
+            return p;
+          })
+          .join("");
+        return html;
+      }
+
+      // --- Autentikasi dan Inisialisasi Firebase ---
+
+      async function setupAuth() {
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            try {
+              if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+              } else {
+                await signInAnonymously(auth);
+              }
+            } catch (error) {
+              console.error("Gagal login:", error);
+              if (!auth.currentUser) {
+                await signInAnonymously(auth);
+              }
+            }
+          }
+
+          if (auth.currentUser) {
+            userId = auth.currentUser.uid;
+            userIdDisplay.textContent = `ID Pengguna: ${userId}`;
+
+            const collectionPath = `/artifacts/${appId}/users/${userId}/tasks`;
+            tasksCollectionRef = collection(db, collectionPath);
+
+            listenForTasks();
+          } else {
+            console.error("Gagal mendapatkan User ID setelah autentikasi.");
+            loadingText.textContent = "Gagal terhubung ke layanan. Silakan refresh.";
+          }
+        });
+      }
+
+      // --- CRUD dan UI Logic ---
+
+      function listenForTasks() {
+        if (!tasksCollectionRef) return;
+
+        const q = query(tasksCollectionRef);
+
+        onSnapshot(
+          q,
+          (snapshot) => {
+            loadingText.classList.add("hidden");
+
+            let tasks = [];
+            snapshot.forEach((doc) => {
+              tasks.push({ id: doc.id, ...doc.data() });
+            });
+
+            tasks.sort((a, b) => {
+              const timeA = a.createdAt || 0;
+              const timeB = b.createdAt || 0;
+              return timeB - timeA;
+            });
+
+            renderTasks(tasks);
+            updateStatusChart(tasks);
+          },
+          (error) => {
+            console.error("Error mendengarkan data:", error);
+            loadingText.textContent = "Error memuat data.";
+          }
+        );
+      }
+
+      function renderTasks(tasks) {
+        daftarTugas.innerHTML = "";
+
+        if (tasks.length === 0) {
+          daftarTugas.innerHTML = '<p class="text-gray-500 italic text-center py-4">Belum ada tugas. Tambahkan satu di atas!</p>';
+          return;
+        }
+
+        tasks.forEach((task) => {
+          const isCompleted = task.completed || false;
+
+          const itemDiv = document.createElement("div");
+          itemDiv.className = `flex flex-col sm:flex-row justify-between sm:items-center p-4 rounded-xl shadow-md border transition duration-200 ${isCompleted ? "bg-green-50 border-green-200" : "bg-white border-gray-200 hover:shadow-lg"}`;
+
+          // Kontrol Selesai/Check
+          const checkButton = document.createElement("button");
+          checkButton.className = `flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 transition duration-150 ${isCompleted ? "bg-green-500 border-green-500 hover:bg-green-600" : "bg-white border-gray-400 hover:bg-gray-100"}`;
+          checkButton.innerHTML = isCompleted ? '<span class="text-white text-sm">✔</span>' : "";
+          checkButton.onclick = () => toggleTaskCompletion(task.id, !isCompleted);
+
+          // Teks tugas
+          const taskText = document.createElement("span");
+          taskText.className = `flex-1 break-all mb-3 sm:mb-0 sm:mr-4 font-medium ${isCompleted ? "line-through text-gray-500" : "text-gray-800"}`;
+          taskText.textContent = task.text;
+
+          // Kontainer tombol
+          const buttonsDiv = document.createElement("div");
+          buttonsDiv.className = "flex flex-wrap gap-2 flex-shrink-0";
+
+          // Tombol Gemini: Saran Ide
+          const ideaButton = document.createElement("button");
+          ideaButton.textContent = "✨ Ide";
+          ideaButton.className = "bg-purple-600 text-white px-3 py-1.5 rounded-lg font-medium text-xs hover:bg-purple-700 transition duration-200";
+          ideaButton.onclick = () => getTaskIdeas(task.text);
+
+          // Tombol Gemini: TTS
+          const speakButton = document.createElement("button");
+          speakButton.textContent = "🔊 Ucapkan";
+          speakButton.className = "bg-green-600 text-white px-3 py-1.5 rounded-lg font-medium text-xs hover:bg-green-700 transition duration-200";
+          speakButton.onclick = (e) => speakTask(task.text, e.currentTarget);
+
+          // Tombol Edit
+          const editButton = document.createElement("button");
+          editButton.textContent = "Edit";
+          editButton.className = "bg-yellow-500 text-white px-3 py-1.5 rounded-lg font-medium text-xs hover:bg-yellow-600 transition duration-200";
+          editButton.onclick = () => showEditModal(task);
+
+          // Tombol Hapus
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Hapus";
+          deleteButton.className = "bg-red-500 text-white px-3 py-1.5 rounded-lg font-medium text-xs hover:bg-red-600 transition duration-200";
+          deleteButton.onclick = () => showConfirmModal(task.id);
+
+          itemDiv.appendChild(checkButton);
+          itemDiv.appendChild(taskText);
+          buttonsDiv.appendChild(ideaButton);
+          buttonsDiv.appendChild(speakButton);
+          buttonsDiv.appendChild(editButton);
+          buttonsDiv.appendChild(deleteButton);
+
+          itemDiv.appendChild(buttonsDiv);
+
+          daftarTugas.appendChild(itemDiv);
+        });
+      }
+
+      async function toggleTaskCompletion(taskId, completed) {
+        if (!taskId || !userId) return;
+        try {
+          const taskDocRef = doc(db, `/artifacts/${appId}/users/${userId}/tasks`, taskId);
+          await updateDoc(taskDocRef, {
+            completed: completed,
+          });
+        } catch (error) {
+          console.error("Error toggle status tugas:", error);
+        }
+      }
+
+      async function handleAddTask(e) {
+        e.preventDefault();
+        const text = inputTugas.value.trim();
+
+        if (text && userId) {
+          try {
+            await addDoc(tasksCollectionRef, {
+              text: text,
+              completed: false,
+              createdAt: Date.now(),
+            });
+            inputTugas.value = "";
+          } catch (error) {
+            console.error("Error menambahkan tugas:", error);
+          }
+        }
+      }
+
+      function showEditModal(task) {
+        inputEditId.value = task.id;
+        inputEditTeks.value = task.text;
+        modalEdit.classList.remove("hidden");
+        inputEditTeks.focus();
+      }
+
+      function hideEditModal() {
+        modalEdit.classList.add("hidden");
+      }
+
+      async function handleEditTask(e) {
+        e.preventDefault();
+        const newText = inputEditTeks.value.trim();
+        const taskId = inputEditId.value;
+
+        if (newText && taskId && userId) {
+          try {
+            const taskDocRef = doc(db, `/artifacts/${appId}/users/${userId}/tasks`, taskId);
+
+            await updateDoc(taskDocRef, {
+              text: newText,
+            });
+
+            hideEditModal();
+          } catch (error) {
+            console.error("Error mengupdate tugas:", error);
+          }
+        }
+      }
+
+      function showConfirmModal(taskId) {
+        taskToDeleteId = taskId;
+        modalConfirm.classList.remove("hidden");
+        setTimeout(() => {
+          modalConfirm.classList.add("opacity-100");
+          modalConfirm.querySelector(".scale-95").classList.remove("scale-95");
+          modalConfirm.querySelector(".scale-95").classList.add("scale-100");
+        }, 10);
+      }
+
+      function hideConfirmModal() {
+        modalConfirm.classList.remove("opacity-100");
+        modalConfirm.querySelector(".scale-100").classList.remove("scale-100");
+        modalConfirm.querySelector(".scale-95").classList.add("scale-95");
+        setTimeout(() => {
+          modalConfirm.classList.add("hidden");
+          taskToDeleteId = null;
+        }, 300);
+      }
+
+      async function handleConfirmDelete() {
+        if (taskToDeleteId && userId) {
+          try {
+            const taskDocRef = doc(db, `/artifacts/${appId}/users/${userId}/tasks`, taskToDeleteId);
+            await deleteDoc(taskDocRef);
+            hideConfirmModal();
+          } catch (error) {
+            console.error("Error menghapus tugas:", error);
+          }
+        }
+      }
+
+      // --- Chart.js Visualization ---
+
+      function updateStatusChart(tasks) {
+        const completed = tasks.filter((t) => t.completed).length;
+        const pending = tasks.length - completed;
+        const total = tasks.length;
+
+        totalTasksEl.textContent = total;
+        completedTasksEl.textContent = completed;
+        pendingTasksEl.textContent = pending;
+
+        const data = {
+          labels: ["Selesai", "Belum Selesai"],
+          datasets: [
+            {
+              data: [completed, pending],
+              backgroundColor: [
+                "#10B981", // green-500
+                "#F87171", // red-400
+              ],
+              hoverOffset: 4,
+            },
+          ],
+        };
+
+        const config = {
+          type: "doughnut",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  boxWidth: 12,
+                  padding: 10,
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    let label = context.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    if (context.parsed !== null) {
+                      label += context.parsed;
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+            cutout: "70%",
+            layout: {
+              padding: {
+                top: 5,
+                bottom: 5,
+              },
+            },
+          },
+        };
+
+        const ctx = document.getElementById("statusChart").getContext("2d");
+
+        if (statusChartInstance) {
+          statusChartInstance.data = data;
+          statusChartInstance.update();
+        } else {
+          statusChartInstance = new Chart(ctx, config);
+        }
+      }
+
+      // --- Gemini Integration (LLM & TTS) ---
+
+      async function speakTask(text, button) {
+        button.disabled = true;
+        const originalText = button.textContent;
+        button.textContent = "🔊 Memuat...";
+
+        try {
+          const payload = {
+            contents: [
+              {
+                parts: [{ text: `Bacakan dengan suara yang ramah dan jelas dalam Bahasa Indonesia: "${text}"` }],
+              },
+            ],
+            generationConfig: {
+              responseModalities: ["AUDIO"],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName: "Puck" },
+                },
+              },
+            },
+            model: "gemini-2.5-flash-preview-tts",
+          };
+
+          const response = await exponentialBackoffFetch(GEMINI_TTS_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json();
+          const part = result?.candidates?.[0]?.content?.parts?.[0];
+          const audioData = part?.inlineData?.data;
+          const mimeType = part?.inlineData?.mimeType;
+
+          if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
+            const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+            const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+
+            const pcmData = base64ToArrayBuffer(audioData);
+            const pcm16 = new Int16Array(pcmData);
+            const wavBlob = pcmToWav(pcm16, sampleRate);
+            const audioUrl = URL.createObjectURL(wavBlob);
+
+            if (!audioContext) {
+              audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const audio = new Audio(audioUrl);
+            audio.play();
+
+            audio.onplaying = () => {
+              button.textContent = "🎶 Berbicara...";
+            };
+            audio.onended = () => {
+              URL.revokeObjectURL(audioUrl);
+              button.textContent = originalText;
+              button.disabled = false;
+            };
+          } else {
+            throw new Error("Data audio tidak ditemukan.");
+          }
+        } catch (error) {
+          console.error("Error TTS:", error);
+          alert("Gagal membacakan tugas. Silakan cek konsol.");
+          button.textContent = originalText;
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      async function getTaskIdeas(taskText) {
+        ideTugasTeks.textContent = `Mencari ide untuk tugas: "${taskText}"`;
+        ideKonten.innerHTML = "";
+        ideLoading.classList.remove("hidden");
+        modalIde.classList.remove("hidden");
+
+        const systemPrompt = `Anda adalah asisten produktivitas yang cerdas. Berikan 3-5 langkah terperinci, ide, atau sub-tugas untuk membantu memecah tugas yang diberikan. Format jawaban Anda menggunakan Markdown. Berikan tanggapan dalam Bahasa Indonesia.`;
+        const userQuery = `Berikan langkah-langkah atau ide untuk tugas ini: ${taskText}`;
+
+        const payload = {
+          contents: [{ parts: [{ text: userQuery }] }],
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          tools: [{ google_search: {} }],
+        };
+
+        try {
+          const response = await exponentialBackoffFetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json();
+          const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Tidak dapat menghasilkan ide. Coba lagi.";
+
+          ideKonten.innerHTML = convertMarkdownToHtml(text);
+        } catch (error) {
+          console.error("Error Gemini Idea:", error);
+          ideKonten.innerHTML = `<p class="text-red-500">Terjadi kesalahan saat mencari ide. (${error.message}). Pastikan kunci API Gemini valid.</p>`;
+        } finally {
+          ideLoading.classList.add("hidden");
+        }
+      }
+
+      // --- Event Listeners ---
+
+      document.addEventListener("DOMContentLoaded", setupAuth);
+
+      formTambah.addEventListener("submit", handleAddTask);
+      formEdit.addEventListener("submit", handleEditTask);
+      btnBatalEdit.addEventListener("click", hideEditModal);
+      btnTutupIde.addEventListener("click", () => modalIde.classList.add("hidden"));
+
+      // Konfirmasi Hapus Listeners
+      btnConfirmCancel.addEventListener("click", hideConfirmModal);
+      btnConfirmDelete.addEventListener("click", handleConfirmDelete);
+
+      modalEdit.addEventListener("click", (e) => {
+        if (e.target === modalEdit) {
+          hideEditModal();
+        }
+      });
+      modalIde.addEventListener("click", (e) => {
+        if (e.target === modalIde) {
+          modalIde.classList.add("hidden");
+        }
+      });
+      modalConfirm.addEventListener("click", (e) => {
+        if (e.target === modalConfirm) {
+          hideConfirmModal();
+        }
+      });
+    </script>
+  </body>
+</html>
