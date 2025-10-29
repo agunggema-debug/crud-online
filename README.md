@@ -66,18 +66,4 @@ const FIREBASE_CONFIG = {
 
 const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
 
-## 4. Buka di Browser
-Simpan perubahan pada file index.html dan buka langsung menggunakan browser modern apa pun (seperti Chrome, Firefox, atau Edge).
 
-🚀 Data akan secara otomatis dimuat dan disimpan di Firebase Firestore Anda secara real-time.
-
-🤝 Kontribusi
-Kami menyambut kontribusi dan saran dari komunitas! Aplikasi ini dapat dikembangkan lebih lanjut dengan fitur-fitur berikut:
-
-Peningkatan Saran: Gunakan fitur Google Search Grounding pada Gemini untuk memberikan saran berdasarkan konteks yang lebih luas (misalnya, jika tugas adalah "Beli bahan makanan", disarankan resep populer).
-
-Prioritas Tugas: Tambahkan fitur prioritas tugas (Tinggi, Sedang, Rendah) dan implementasikan styling visual yang berbeda.
-
-Autentikasi: Implementasi login non-anonim (misalnya, Login Google) menggunakan Firebase Auth untuk keamanan data yang lebih baik dan portabilitas data antar perangkat.
-
-Dibangun dengan 💙 oleh Gemini.
