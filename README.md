@@ -37,11 +37,6 @@ Aplikasi ini adalah contoh solusi *full-stack* yang efisien dalam satu file tung
 
 ## 🖼️ Tampilan Aplikasi
 
-*(Di sini Anda dapat memasukkan gambar atau GIF demonstrasi aplikasi Anda)*
 
-```html
-<p align="center">
-  <img src="(https://agunggema-debug.github.io/crud-online/screenshot-dashboard.png" alt="Screenshot Tampilan Dashboard Tugas Cerdas" width="800"/>
-</p>
 
 
