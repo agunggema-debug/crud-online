@@ -1,91 +1,45 @@
+# 🧠 Smart To-Do List (Aplikasi Tugas Cerdas)
 
+> Aplikasi daftar tugas sederhana yang dibangun dengan teknologi modern. Selain fungsi dasar CRUD, aplikasi ini diperkaya dengan kemampuan Kecerdasan Buatan (AI) menggunakan Google Gemini API untuk memberikan saran langkah-langkah detail dan fitur Text-to-Speech (TTS) untuk membacakan tugas Anda.
 
-🧠 Aplikasi Tugas Cerdas (Smart To-Do List)
+<p align="center">
+  <a href="https://agunggema-debug.github.io/smart-todo-list/">
+    <img src="https://img.shields.io/badge/LIVE_DEMO-Lihat_Aplikasi-0077B6?style=for-the-badge&logo=vercel" alt="Live Demo Vercel" />
+  </a>
+  <img src="https://img.shields.io/badge/STATUS-Active-brightgreen?style=for-the-badge" alt="Status Active" />
+</p>
 
-Aplikasi daftar tugas sederhana yang dibangun dengan teknologi modern. Selain fungsi dasar CRUD (Create, Read, Update, Delete), aplikasi ini diperkaya dengan kemampuan Kecerdasan Buatan (AI) menggunakan Gemini API untuk memberikan saran langkah-langkah detail dan fitur Text-to-Speech (TTS) untuk membacakan tugas Anda.
+## ✨ Fitur Utama
 
-Dibangun sebagai Single Page Application (SPA) menggunakan satu file HTML tunggal, menjadikannya cepat, ringan, dan mudah diterapkan (deploy).
+Aplikasi ini mendefinisikan ulang *to-do list* tradisional dengan integrasi AI dan penyimpanan *cloud* yang efisien.
 
-✨ Fitur Utama
+| Fitur | Deskripsi | Teknologi |
+| :--- | :--- | :--- |
+| **CRUD Penuh** | Tambah, Lihat, Edit, dan Hapus tugas secara *real-time*. | HTML, JS, Firestore |
+| **Saran Ide Cerdas** | Tombol ✨ memanggil **Gemini API** untuk memecah tugas kompleks (*misal: "Membuat website"*) menjadi sub-tugas yang terperinci. | Gemini API (LLM) |
+| **Ucapkan Tugas** | Tombol 🔊 menggunakan **Gemini TTS** untuk membacakan tugas dengan suara yang ramah. | Gemini API (TTS) |
+| **Visualisasi Status** | **Donut Chart** menunjukkan persentase tugas *Selesai* vs. *Belum Selesai* secara *real-time*. | Chart.js |
+| **Penyimpanan Cloud** | Semua data tugas disimpan secara persisten di *cloud*, terikat pada ID pengguna anonim yang unik. | Firebase Firestore |
+| **Desain Responsif** | Tampilan bersih, profesional, dan berfungsi sempurna di berbagai ukuran layar. | Tailwind CSS |
 
-Fitur
+---
 
-Deskripsi
+## 🚀 Tumpukan Teknologi (The Stack)
 
-Teknologi
+Aplikasi ini adalah contoh solusi *full-stack* yang efisien dalam satu file tunggal.
 
-CRUD Penuh
+| Kategori | Teknologi | Tujuan |
+| :--- | :--- | :--- |
+| **Frontend & UI** | `HTML5`, `Vanilla JavaScript`, `Tailwind CSS (CDN)` | Antarmuka pengguna yang cepat, ringan, dan dinamis. |
+| **Database** | `Firebase Firestore` | Database NoSQL *real-time* untuk persistensi data. |
+| **Kecerdasan Buatan** | `Gemini API (gemini-2.5-flash-preview-09-2025)` | Pemrosesan bahasa alami dan Text-to-Speech. |
+| **Visualisasi** | `Chart.js` | Menghasilkan Donut Chart status tugas. |
 
-Tambah, Lihat, Edit, dan Hapus tugas dengan mudah.
+## 🖼️ Tampilan Aplikasi
 
-HTML, JS, Firestore
+*(Di sini Anda dapat memasukkan gambar atau GIF demonstrasi aplikasi Anda)*
 
-Saran Ide Cerdas
-
-Tombol ✨ Ide memanggil Gemini API untuk memecah tugas kompleks menjadi sub-tugas yang terperinci.
-
-Gemini API (LLM & Grounding)
-
-Ucapkan Tugas
-
-Tombol 🔊 Ucapkan menggunakan Gemini TTS untuk membacakan tugas dengan suara yang ramah.
-
-Gemini API (TTS)
-
-Visualisasi Status
-
-Donut chart yang menunjukkan persentase tugas Selesai vs. Belum Selesai secara real-time.
-
-Chart.js
-
-Penyimpanan Cloud
-
-Semua data tugas disimpan secara real-time dan persisten di cloud.
-
-Firebase Firestore
-
-Desain Responsif
-
-Tampilan bersih, profesional, dan berfungsi sempurna di desktop, tablet, dan ponsel.
-
-Tailwind CSS
-
-🛠️ Tumpukan Teknologi
-
-Aplikasi ini adalah contoh sempurna dari solusi full-stack yang efisien dalam satu file.
-
-Front-End & UI: HTML5, Vanilla JavaScript, Tailwind CSS (CDN)
-
-Database: Firebase Firestore (Real-time NoSQL Database)
-
-Visualisasi: Chart.js (untuk Donut Chart Status Tugas)
-
-Kecerdasan Buatan: Gemini API (gemini-2.5-flash-preview-09-2025 dan TTS)
-
-🚀 Cara Menjalankan
-
-Karena ini adalah Single Page Application (SPA) dalam satu file, langkah menjalankannya sangat mudah:
-
-Dapatkan Kode: Salin seluruh konten dari file index.html.
-
-Siapkan API: Pastikan Anda memiliki lingkungan yang menyediakan konfigurasi Firebase dan kunci Gemini API yang diperlukan (seperti dalam platform Immersive Canvas ini).
-
-Buka di Browser: Simpan konten tersebut sebagai index.html dan buka menggunakan browser modern apa pun.
-
-Data akan secara otomatis dimuat dan disimpan menggunakan Firebase Firestore berdasarkan ID pengguna unik Anda.
-
-🤝 Kontribusi
-
-Aplikasi ini dapat dikembangkan lebih lanjut. Beberapa ide pengembangan:
-
-Tambahkan fitur prioritas tugas (Tinggi, Sedang, Rendah).
-
-Gunakan fitur "Google Search Grounding" Gemini untuk memberikan saran berdasarkan konteks waktu atau lokasi (misalnya, jika tugas adalah "Beli bahan makanan", disarankan resep populer).
-
-Tambahkan filter untuk menampilkan tugas berdasarkan status atau tanggal pembuatan.
-
-Implementasi autentikasi pengguna non-anonim (misalnya, login Google) untuk keamanan dan portabilitas data yang lebih baik.
-
-Kami menyambut kontribusi dan saran dari komunitas!
-
-Dibangun dengan 💙 oleh Gemini.
+```html
+<p align="center">
+  <img src="URL_ANDA/screenshot-dashboard.png" alt="Screenshot Tampilan Dashboard Tugas Cerdas" width="800"/>
+</p>
